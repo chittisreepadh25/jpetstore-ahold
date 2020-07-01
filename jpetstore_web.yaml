@@ -64,9 +64,11 @@ variables:
   azureFeedPublishName: '765878f8-c954-450c-9d10-10f7effa2b3c'
 resources:
   repositories:
-  - repository: jpetstore_web
-    type: git
-    name: jpetstore_web
+  - repository: jpetstore-ahold
+    type: github
+    name: chittisreepadh25/jpetstore-ahold
+    endpoint: chittisreepadh25
+
 stages:
 - stage: JavaBuildPipeline
   displayName: Java CI CD Build Pipeline
@@ -76,7 +78,7 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - checkout: jpetstore_web
+    - checkout: jpetstore-ahold
       displayName: CodeCheckout
     - task: SonarQubePrepare@4
       condition: ${{ parameters.sonarqube }}
