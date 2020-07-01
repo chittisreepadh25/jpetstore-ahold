@@ -2,47 +2,10 @@
 #Checkout,Codescan,QualityCheck,Build,UploadArtifacts and Deploy To Webapp
 name: $(build.sourceBranchName)-$(Date:yyyyMMdd)$(Rev:.r)
 trigger: none
-parameters:
-- name: sonarqube
-  type: boolean
-  default: false
-  values: 
-  - true
-  - false
-- name: mavenbuild
-  type: boolean
-  default: false
-  values: 
-  - true
-  - false
-- name: unittest
-  type: boolean
-  default: false
-  values: 
-  - true
-  - false
-- name: publishartifacts
-  type: boolean
-  default: false
-  values: 
-  - true
-  - false
-- name: deploywebapp
-  type: boolean
-  default: false
-  values: 
-  - true
-  - false
-- name: sonarProjectKey
-  type: string
-  default: 'jpetstore'
-- name: sonarProjectName
-  type: string
-  default: 'jpetstore'
 variables:
   sonarServiceConnection: 'sonar-ahold'
-  #sonarProjectKey: 'jpetstore'
-  #sonarProjectName: 'jpetstore'
+  sonarProjectKey: 'jpetstore'
+  sonarProjectName: 'jpetstore'
   sonarSources: '.'
   sonarJavaSource: '.'
   sonarJavaBinaries: '.'
@@ -66,9 +29,8 @@ resources:
   repositories:
   - repository: jpetstore-ahold
     type: github
-    name: chittisreepadh25/jpetstore-ahold
-    endpoint: chittisreepadh25
-
+    endpoint: github_token
+    name: https://github.com/chittisreepadh25/jpetstore-ahold.git
 stages:
 - stage: JavaBuildPipeline
   displayName: Java CI CD Build Pipeline
@@ -80,29 +42,7 @@ stages:
     steps:
     - checkout: jpetstore-ahold
       displayName: CodeCheckout
-    - task: SonarQubePrepare@4
-      condition: ${{ parameters.sonarqube }}
-      displayName: SonarqubeInitial
-      inputs:
-        SonarQube: $(sonarServiceConnection)
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: ${{ parameters.sonarProjectKey }}
-        cliProjectName: ${{ parameters.sonarProjectName }}
-        cliSources: $(sonarSources)
-        extraProperties: |
-          sonar.java.source=$(sonarJavaSource)
-          sonar.java.binaries=$(sonarJavaBinaries)
-    - task: SonarQubeAnalyze@4
-      condition: ${{ parameters.sonarqube }}
-      displayName: SonarAnalysis
-    - task: SonarQubePublish@4
-      condition: ${{ parameters.sonarqube }}
-      displayName: SonarCodeQualityCheck
-      inputs:
-        pollingTimeoutSec: '300'
     - task: Maven@3
-      condition: ${{ parameters.mavenbuild }}
       displayName: BuildWithMaven
       inputs:
         mavenPomFile: 'pom.xml'
@@ -113,7 +53,6 @@ stages:
         sonarQubeRunAnalysis: false
         publishJUnitResults: false
     - task: Maven@3
-      condition: ${{ parameters.unittest }}
       displayName: UnitTest
       inputs:
         mavenPomFile: 'pom.xml'
@@ -125,8 +64,25 @@ stages:
         mavenAuthenticateFeed: false
         effectivePomSkip: false
         sonarQubeRunAnalysis: false
+    - task: SonarQubePrepare@4
+      displayName: SonarqubeInitial
+      inputs:
+        SonarQube: $(sonarServiceConnection)
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: $(sonarProjectKey)
+        cliProjectName: $(sonarProjectName)
+        cliSources: $(sonarSources)
+        extraProperties: |
+          sonar.java.source=$(sonarJavaSource)
+          sonar.java.binaries=$(sonarJavaBinaries)
+    - task: SonarQubeAnalyze@4
+      displayName: SonarAnalysis
+    - task: SonarQubePublish@4
+      displayName: SonarCodeQualityCheck
+      inputs:
+        pollingTimeoutSec: '300'
     - task: UniversalPackages@0
-      condition: ${{ parameters.publishartifacts }}
       displayName: PublishArtifacts
       inputs:
         command: 'publish'
@@ -136,7 +92,6 @@ stages:
         vstsFeedPackagePublish: $(azureArtifactName)
         versionOption: 'patch'
     - task: AzureWebApp@1
-      condition: ${{ parameters.deploywebapp }}
       displayName: App Deployment
       inputs:
         azureSubscription: $(azureServiceConnectionId)
