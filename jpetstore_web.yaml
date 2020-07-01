@@ -31,7 +31,7 @@ resources:
   - repository: jpetstore-ahold
     type: github
     endpoint: github_token
-    name: https://github.com/chittisreepadh25/jpetstore-ahold.git
+    name: chittisreepadh25/jpetstore-ahold
 stages:
 - stage: JavaBuildPipeline
   displayName: Java CI CD Build Pipeline
