@@ -1,7 +1,8 @@
 #Java
 #Checkout,Codescan,QualityCheck,Build,UploadArtifacts and Deploy To Webapp
 name: $(build.sourceBranchName)-$(Date:yyyyMMdd)$(Rev:.r)
-trigger: 
+trigger: none
+pr:
   - master
 variables:
   sonarServiceConnection: 'sonar-ahold'
