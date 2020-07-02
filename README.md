@@ -1,4 +1,4 @@
-MyBatis JPetStore-test3
+MyBatis JPetStore-test4
 =================
 
 [![Build Status](https://travis-ci.org/mybatis/jpetstore-6.svg?branch=master)](https://travis-ci.org/mybatis/jpetstore-6)
