@@ -44,6 +44,7 @@ stages:
     - checkout: jpetstore-ahold
       displayName: CodeCheckout
     - task: Maven@3
+      condition: and(succeeded(), ne(variables['TriggeringArtifactSourceBranchName'], 'merge'))
       displayName: BuildWithMaven
       inputs:
         mavenPomFile: 'pom.xml'
